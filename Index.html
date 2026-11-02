@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Ready for Hospitality</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; background: #14110f; color: #f2e9e1; }
+    h1 { color: #e0b15c; }
+    textarea, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; }
+    textarea { height: 200px; }
+    button { background: #e0b15c; color: #14110f; font-weight: bold; cursor: pointer; }
+    #result { background: #1f1a17; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-top: 16px; }
+    #tips { color: #b9a999; }
+    #paywall { display: none; background: #2a2018; padding: 16px; border-radius: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Resume Ready for Hospitality</h1>
+  <p>Paste your resume, cover letter, or email and get a sharper version in seconds.</p>
+
+  <select id="docType">
+    <option>Bartender resume</option>
+    <option>Server cover letter</option>
+    <option>Email to a manager</option>
+  </select>
+
+  <select id="tone">
+    <option>Professional</option>
+    <option>Friendly</option>
+    <option>Confident</option>
+  </select>
+
+  <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+  <button id="rewriteBtn">Rewrite it</button>
+  <p id="counter"></p>
+
+  <div id="paywall">
+    <h3>You've used your 3 free rewrites</h3>
+    <p>Keep going for just a few dollars a month.</p>
+    <a href="YOUR_STRIPE_PAYMENT_LINK_HERE"><button>Subscribe</button></a>
+  </div>
+
+  <div id="result" style="display:none;"></div>
+  <p id="tips"></p>
+  <button id="copyBtn" style="display:none;">Copy improved version</button>
+
+  <script>
+    const FREE_LIMIT = 3;
+    const used = () => parseInt(localStorage.getItem('rewritesUsed') || '0');
+
+    function updateCounter() {
+      const left = Math.max(0, FREE_LIMIT - used());
+      document.getElementById('counter').textContent = left + ' free rewrites left';
+      if (left === 0) {
+        document.getElementById('paywall').style.display = 'block';
+        document.getElementById('rewriteBtn').style.display = 'none';
+      }
+    }
+
+    document.getElementById('rewriteBtn').addEventListener('click', async () => {
+      const text = document.getElementById('inputText').value.trim();
+      if (!text) return;
+      const res = await fetch('/api/rewrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          docType: document.getElementById('docType').value,
+          tone: document.getElementById('tone').value
+        })
+      });
+      const data = await res.json();
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').textContent = data.rewrite;
+      document.getElementById('tips').textContent = data.tips;
+      document.getElementById('copyBtn').style.display = 'block';
+      localStorage.setItem('rewritesUsed', used() + 1);
+      updateCounter();
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('result').textContent);
+    });
+
+    updateCounter();
+  </script>
+</body>
+</html>
