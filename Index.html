@@ -1,89 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume Ready for Hospitality</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; background: #14110f; color: #f2e9e1; }
-    h1 { color: #e0b15c; }
-    textarea, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; }
-    textarea { height: 200px; }
-    button { background: #e0b15c; color: #14110f; font-weight: bold; cursor: pointer; }
-    #result { background: #1f1a17; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-top: 16px; }
-    #tips { color: #b9a999; }
-    #paywall { display: none; background: #2a2018; padding: 16px; border-radius: 8px; text-align: center; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Helper</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; margin: 0; background: #f4f6fa; color: #222; }
+  header { background: #1f3a6e; color: white; padding: 28px 16px; text-align: center; }
+  header h1 { margin: 0 0 8px; font-size: 28px; }
+  header p { margin: 0; opacity: 0.9; }
+  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  h2 { margin-top: 0; color: #1f3a6e; }
+  .btn { display: inline-block; background: #2e7d32; color: white; padding: 14px 24px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; text-decoration: none; }
+  .btn:hover { background: #256528; }
+  textarea { width: 100%; min-height: 160px; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+  select { padding: 10px; font-size: 16px; border-radius: 8px; margin-bottom: 12px; width: 100%; }
+  .result { background: #eef5ff; border-left: 4px solid #1f3a6e; padding: 14px; margin-top: 16px; border-radius: 6px; white-space: pre-wrap; }
+  .hidden { display: none; }
+  li { margin-bottom: 6px; }
+</style>
 </head>
 <body>
-  <h1>Resume Ready for Hospitality</h1>
-  <p>Paste your resume, cover letter, or email and get a sharper version in seconds.</p>
+<header>
+  <h1>Writing Helper</h1>
+  <p>Fix your resume, emails, and everyday writing in seconds.</p>
+</header>
+<main>
 
-  <select id="docType">
-    <option>Bartender resume</option>
-    <option>Server cover letter</option>
-    <option>Email to a manager</option>
-  </select>
+  <section id="sales" class="card">
+    <h2>Write with confidence</h2>
+    <ul>
+      <li>Spot spelling, grammar, and wording problems instantly</li>
+      <li>Get tips to make your resume stand out</li>
+      <li>Make your emails clear, polite, and professional</li>
+    </ul>
+    <p><strong>One simple payment. Instant access.</strong></p>
+    <a class="btn" href="https://buy.stripe.com/test_aFa9ATeNz1PxgDlagy0VO00">Get Access Now</a>
+  </section>
 
-  <select id="tone">
-    <option>Professional</option>
-    <option>Friendly</option>
-    <option>Confident</option>
-  </select>
+  <section id="tool" class="card hidden">
+    <h2>Your Writing Tool</h2>
+    <label for="kind">What are you writing?</label>
+    <select id="kind">
+      <option value="resume">Resume</option>
+      <option value="email">Email</option>
+      <option value="general">General writing</option>
+    </select>
+    <textarea id="text" placeholder="Paste your writing here..."></textarea>
+    <p><button class="btn" onclick="improve()">Improve My Writing</button></p>
+    <div id="out" class="result hidden"></div>
+  </section>
 
-  <textarea id="inputText" placeholder="Paste your text here..."></textarea>
-  <button id="rewriteBtn">Rewrite it</button>
-  <p id="counter"></p>
+</main>
 
-  <div id="paywall">
-    <h3>You've used your 3 free rewrites</h3>
-    <p>Keep going for just a few dollars a month.</p>
-    <a href="YOUR_STRIPE_PAYMENT_LINK_HERE"><button>Subscribe</button></a>
-  </div>
+<script>
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('paid') === 'yes' || localStorage.getItem('paid') === 'yes') {
+    localStorage.setItem('paid', 'yes');
+    document.getElementById('sales').classList.add('hidden');
+    document.getElementById('tool').classList.remove('hidden');
+  }
 
-  <div id="result" style="display:none;"></div>
-  <p id="tips"></p>
-  <button id="copyBtn" style="display:none;">Copy improved version</button>
+  function improve() {
+    var text = document.getElementById('text').value.trim();
+    var kind = document.getElementById('kind').value;
+    var out = document.getElementById('out');
+    if (!text) { out.textContent = 'Please paste some writing first.'; out.classList.remove('hidden'); return; }
 
-  <script>
-    const FREE_LIMIT = 3;
-    const used = () => parseInt(localStorage.getItem('rewritesUsed') || '0');
+    var notes = [];
+    var fixed = text;
 
-    function updateCounter() {
-      const left = Math.max(0, FREE_LIMIT - used());
-      document.getElementById('counter').textContent = left + ' free rewrites left';
-      if (left === 0) {
-        document.getElementById('paywall').style.display = 'block';
-        document.getElementById('rewriteBtn').style.display = 'none';
-      }
+    fixed = fixed.replace(/\s{2,}/g, ' ');
+    fixed = fixed.replace(/\bi\b/g, 'I');
+    fixed = fixed.replace(/(^|[.!?]\s+)([a-z])/g, function(m, a, b) { return a + b.toUpperCase(); });
+    if (fixed !== text) notes.push('Fixed spacing and capitalization.');
+
+    var weak = ['very', 'really', 'just', 'basically', 'stuff', 'things', 'a lot'];
+    weak.forEach(function(w) {
+      if (new RegExp('\\b' + w + '\\b', 'i').test(text)) notes.push('Consider removing or replacing the weak word "' + w + '".');
+    });
+
+    text.split(/[.!?]+/).forEach(function(s) {
+      if (s.trim().split(/\s+/).length > 30) notes.push('One sentence is very long. Try splitting it in two.');
+    });
+
+    if (kind === 'resume') {
+      notes.push('Start each bullet with a strong action verb (Led, Built, Improved, Managed).');
+      notes.push('Add numbers where you can (for example, served 200 guests per night).');
+      notes.push('Keep it to one page and cut anything not relevant to the job.');
+    } else if (kind === 'email') {
+      notes.push('Put your main request in the first two sentences.');
+      notes.push('Use a clear subject line and end with a polite closing.');
+      notes.push('Keep it short: most emails should be under 150 words.');
+    } else {
+      notes.push('Read it aloud once. If you stumble, rewrite that part.');
+      notes.push('Prefer short, simple words over complicated ones.');
     }
 
-    document.getElementById('rewriteBtn').addEventListener('click', async () => {
-      const text = document.getElementById('inputText').value.trim();
-      if (!text) return;
-      const res = await fetch('/api/rewrite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text,
-          docType: document.getElementById('docType').value,
-          tone: document.getElementById('tone').value
-        })
-      });
-      const data = await res.json();
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('result').textContent = data.rewrite;
-      document.getElementById('tips').textContent = data.tips;
-      document.getElementById('copyBtn').style.display = 'block';
-      localStorage.setItem('rewritesUsed', used() + 1);
-      updateCounter();
-    });
-
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      navigator.clipboard.writeText(document.getElementById('result').textContent);
-    });
-
-    updateCounter();
-  </script>
+    out.textContent = 'IMPROVED TEXT:\n' + fixed + '\n\nTIPS:\n- ' + notes.join('\n- ');
+    out.classList.remove('hidden');
+  }
+</script>
 </body>
 </html>
